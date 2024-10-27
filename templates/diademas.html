@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkGear Data Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #ffffff; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: white; color: green; }
+        .logo { color: #426B1F; font-size: 27px; font-family: 'fangsong'; }
+        .contenedor { display: flex; justify-content: space-around; flex-wrap: wrap; }
+        .infousuario { width: 45%; min-width: 300px; background-color: #FAFAF5; margin-bottom: 20px; padding: 15px; border-radius: 8px; box-shadow: 0 20px 30px rgba(0,0,0,0.1); border: 2px solid rgb(182, 182, 182); }
+        .us { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .graf { width: 100%; height: 300px; }
+        button { font-size: 16px; padding: 10px 20px; border: none; border-radius: 12px; cursor: pointer; background-color: #426B1F; color: #ffffff;}
+        button.connect { background-color: #426B1F; color: white; }
+        button.connect:hover { background-color: #45a049; }
+        button.disconnect { background-color: red; color: white; }
+        button.disconnect:hover { background-color: darkred; }
+        #errorMessage { color: red; text-align: center; margin-top: 10px; }
+        .checkbox-container { display: flex; flex-wrap: wrap; justify-content: space-around; margin-top: 10px; }
+        .checkbox-item { margin: 5px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">MindWave BCI / Datos del usuario</div>
+        <div>
+            <button id="reiniciarTodo">Reiniciar todo</button>
+            <a href="/help"><button>Ayuda</button></a>
+        </div>
+    </header>
+
+    <div class="encabezado">
+        <h2>Usuarios</h2>
+    </div>
+    <hr>
+    <br>
+    <div class="espacio">
+        <div class="contenedor">
+            <div class="infousuario">
+                <div class="us">
+                    <div class="imgdia">
+                        <h2>Diadema 1</h2>
+                        <img src="/static/img/user.png" alt="User imagen" style="width: 70px; height: 70px; margin-left: 25px;">
+                    </div>
+                    <div id="estado1" class="alert alert-warning">Desconectado</div>
+                    <button id="toggle1" class="btn connect">Conectar</button>
+                    <a href="/download/diadema1" download>
+                        <img src="/static/img/descarga.png" alt="Descargar Datos" style="width: 30px; height: 30px; cursor: pointer; margin-right: 17px;">
+                    </a>
+                </div>
+                <div class="graf">
+                    <canvas id="grafica-diadema-1"></canvas>
+                </div>
+                <div class="checkbox-container" id="checkboxes1"></div>
+            </div>
+
+            <div class="infousuario">
+                <div class="us">
+                    <div class="imgdia">
+                        <h2>Diadema 2</h2>
+                        <img src="/static/img/user.png" alt="User imagen" style="width: 70px; height: 70px; margin-left: 25px;">
+                    </div>
+                    <div id="estado2" class="alert alert-warning">Desconectado</div>
+                    <button id="toggle2" class="btn connect">Conectar</button>
+                    <a href="/download/diadema2" download>
+                        <img src="/static/img/descarga.png" alt="Descargar Datos" style="width: 30px; height: 30px; cursor: pointer; margin-right: 17px;">
+                    </a>
+                </div>
+                <div class="graf">
+                    <canvas id="grafica-diadema-2"></canvas>
+                </div>
+                <div class="checkbox-container" id="checkboxes2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorMessage"></div>
+
+    <script>
+        let diademaConectada = {'Diadema 1': false, 'Diadema 2': false};
+        let graficaDiadema1, graficaDiadema2;
+        const maxDataPoints = 25;
+        const dataTypes = [
+            { label: 'Delta', color: 'rgba(187, 19, 19 , 1)', key: 'delta' },
+            { label: 'Theta', color: 'rgba(255, 139, 1 , 1)', key: 'theta' },
+            { label: 'Low Alpha', color: 'rgba(245, 245, 16 , 1)', key: 'lowAlpha' },
+            { label: 'High Alpha', color: 'rgba(192, 51, 253, 1)', key: 'highAlpha' },
+            { label: 'Low Beta', color: 'rgba(54, 162, 235, 1)', key: 'lowBeta' },
+            { label: 'High Beta', color: 'rgba(153, 255, 51, 1)', key: 'highBeta' },
+            { label: 'Low Gamma', color: 'rgba(255, 99, 132, 1)', key: 'lowGamma' },
+            { label: 'High Gamma', color: 'rgba(176, 138, 42 , 1)', key: 'highGamma' },
+            { label: 'Atención', color: 'rgba(0, 128, 0, 1)', key: 'attention' },
+            { label: 'Meditación', color: 'rgba(128, 0, 128, 1)', key: 'meditation' }
+        ];
+
+        function crearGrafica(ctx) {
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: dataTypes.map(type => ({
+                        label: type.label,
+                        borderColor: type.color,
+                        backgroundColor: type.color.replace('1)', '0.2)'),
+                        data: [],
+                        hidden: false,
+                        yAxisID: 'y'
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { display: true },
+                        y: { 
+                            display: true, 
+                            beginAtZero: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Valores'
+                            },
+                            min: 0,
+                        }
+                    }
+                }
+            });
+        }
+
+        function actualizarGrafica(grafica, data) {
+            const currentTime = new Date().toLocaleTimeString();
+
+            if (grafica.data.labels.length >= maxDataPoints) {
+                grafica.data.labels.shift();
+                grafica.data.datasets.forEach(dataset => dataset.data.shift());
+            }
+
+            grafica.data.labels.push(currentTime);
+            dataTypes.forEach((type, index) => {
+                let value;
+                if (type.key === 'attention' || type.key === 'meditation') {
+                    value = data[type.key];
+                } else {
+                    value = data.eeg_power[type.key];
+                }
+                grafica.data.datasets[index].data.push(value);
+            });
+
+            grafica.update();
+        }
+
+        function updateStatus(name, status) {
+            const estadoDiv = $(`#estado${name.charAt(name.length - 1)}`);
+            estadoDiv.text(status)
+                    .toggleClass('alert-warning', status !== 'Conectado' && status !== 'Conectando...')
+                    .toggleClass('alert-success', status === 'Conectado');
+
+            const button = $(`#toggle${name.charAt(name.length - 1)}`);
+            
+            if (status === 'Conectado') {
+                button.text('Desconectar');
+            } else if (status === 'Desconectado') {
+                button.text('Conectar');
+            } else {
+                button.text('Conectando...');
+            }
+
+            button.toggleClass('connect', status === 'Desconectado')
+                  .toggleClass('disconnect', status === 'Conectado');
+        }
+
+        function updateData(diadema, data) {
+            const dataDiv = $(`#data${diadema.charAt(diadema.length - 1)}`);
+            dataDiv.text(JSON.stringify(data, null, 2));
+            actualizarGrafica(diadema === 'Diadema 1' ? graficaDiadema1 : graficaDiadema2, data);
+        }
+
+        function actualizarDashboard() {
+            $.get('/data', function(data) {
+                for (const diadema in data) {
+                    updateStatus(diadema, data[diadema].status);
+                    if (data[diadema].status === 'Conectado') {
+                        updateData(diadema, data[diadema]);
+                    }
+                }
+            }).fail(function(error) {
+                $('#errorMessage').text('Error al obtener datos: ' + error.message);
+            });
+        }
+
+        function createCheckboxes(diademaNum) {
+            const checkboxContainer = $(`#checkboxes${diademaNum}`);
+            dataTypes.forEach((type, index) => {
+                const checkboxItem = $('<div>').addClass('checkbox-item');
+                const checkbox = $('<input>')
+                    .attr('type', 'checkbox')
+                    .attr('id', `checkbox${diademaNum}-${index}`)
+                    .prop('checked', true)
+                    .on('change', function() {
+                        const graph = diademaNum === '1' ? graficaDiadema1 : graficaDiadema2;
+                        graph.data.datasets[index].hidden = !this.checked;
+                        graph.update();
+                    });
+                const label = $('<label>')
+                    .attr('for', `checkbox${diademaNum}-${index}`)
+                    .text(type.label);
+                checkboxItem.append(checkbox, label);
+                checkboxContainer.append(checkboxItem);
+            });
+        }
+
+        $(document).ready(function() {
+            const ctx1 = document.getElementById('grafica-diadema-1').getContext('2d');
+            const ctx2 = document.getElementById('grafica-diadema-2').getContext('2d');
+            graficaDiadema1 = crearGrafica(ctx1);
+            graficaDiadema2 = crearGrafica(ctx2);
+
+            createCheckboxes('1');
+            createCheckboxes('2');
+
+            setInterval(actualizarDashboard, 1000);
+
+            $('#toggle1, #toggle2').click(function() {
+                const diadema = $(this).attr('id') === 'toggle1' ? 'Diadema 1' : 'Diadema 2';
+                const estado = diademaConectada[diadema] ? 'disconnect' : 'connect';
+                const button = $(this);
+
+                updateStatus(diadema, 'Conectando...');
+
+                button.prop('disabled', true);
+
+                $.post(`/${estado}/${diadema}`, function(response) {
+                    console.log(response);
+                    diademaConectada[diadema] = !diademaConectada[diadema];
+                    updateStatus(diadema, diademaConectada[diadema] ? 'Conectado' : 'Desconectado');
+                }).fail(function() {
+                    updateStatus(diadema, 'Desconectado');
+                }).always(function() {
+                    button.prop('disabled', false);
+                });
+            });
+
+            $('#reiniciarTodo').click(function() {
+                // Reiniciar el estado de las diademas
+                diademaConectada = {'Diadema 1': false, 'Diadema 2': false};
+                
+                // Reiniciar los estados en la UI
+                updateStatus('Diadema 1', 'Desconectado');
+                updateStatus('Diadema 2', 'Desconectado');
+                
+                // Reiniciar las gráficas
+                graficaDiadema1.data.labels = [];
+                graficaDiadema1.data.datasets.forEach(dataset => {
+                    dataset.data = [];
+                    dataset.hidden = false; // Asegúrate de que todos los datasets estén visibles
+                });
+                
+                graficaDiadema2.data.labels = [];
+                graficaDiadema2.data.datasets.forEach(dataset => {
+                    dataset.data = [];
+                    dataset.hidden = false; // Asegúrate de que todos los datasets estén visibles
+                });
+
+                graficaDiadema1.update();
+                graficaDiadema2.update();
+                
+                $('#errorMessage').text(''); // Limpiar mensajes de error
+            });
+
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+.bodyin{
+    background-image: url(img/Inicio.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    text-align: center;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    /* overflow: hidden; Oculta las barras de desplazamiento */
+}
+
+header{
+    margin: 0%;
+    display:flex;
+    background-color: white;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Segoe UI';
+    padding: 30px;
+}
+
+h1{
+    color: white;
+    text-align: center;
+    padding-top: 90px;
+    font-family: 'fangsong';
+    font-size: 40px;
+}
+
+.pini{
+    color: white;
+    padding: 50px;
+    font-family: 'fangsong';
+    font-size: 23px;
+    margin-left: 70px;
+    margin-right: 70px;
+}
+
+a{
+    color: #426B1F;
+    text-decoration: none;
+    margin: 13px;
+    font-size: 20px;
+}
+
+a:hover{
+    font-size: 23px;
+}
+
+.logo{
+    color: #426B1F;
+    font-size: 27px;
+    font-family: 'fangsong';
+}
+
+.inicio {
+    display: inline-block;
+    color: white;
+    background: #426B1F;
+    padding: 10px 40px;
+    border-radius: 10px;
+    font-family: sans-serif;
+}
+
+.inicio:hover {
+    background-color: #82ce86; /* Color de fondo del botón al pasar el cursor */
+}
+
+
+/*------------------------------------------------------------------------------------------------------------*/
+
+.tex{
+    border: 3px solid rgb(153, 153, 153);
+    margin-left: 70px;
+    margin-right: 70px;
+    border-radius: 10px;
+}
+
+.tex h1{
+    color: #426B1F;
+    padding: 40px;
+}
+
+.tex p{
+    color: black;
+
+}
