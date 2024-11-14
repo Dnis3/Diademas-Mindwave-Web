@@ -3,20 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MindWave Web BCI</title>
+    <title>NeuroExplorer</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/static/img/brain.png" type="image/x-icon">
 </head>
 <body class="bodyin">
     <header>
         <div class="logo">MindWave BCI</div>
-        <div>
+        <ul>
+            <a class="muestra">NeuroExplorer</a>
+            <a href="/diademas">Diademas</a>
             <a href="/help">Ayuda</a>
-            <a href="/diademas">Iniciar</a>
-        </div>
+        </ul>
     </header>
 
-    <h1>¡Bienvenido a MultiMind!</h1>
-    <p class="pini">Nuestra plataforma le permite aprovechar al máximo las diademas MindWave Mobile para la lectura de ondas cerebrales mediante BCI (Interfaz Cerebro-Computadora). Con NeuroExplorer, puede monitorear, analizar y entender su actividad cerebral en tiempo real de manera intuitiva y accesible. Ya sea que sea un investigador, desarrollador o simplemente un entusiasta de la neurotecnología, nuestra herramienta le proporciona todo lo que necesita para monitorear y adentrarse en el fascinante mundo de las ondas cerebrales.</p>
-    <a href="/diademas" class="inicio">Iniciar...</a>
+    <div class="divi">
+        <div class="contenedor1">
+            <h1 id="animated-title">¡Bienvenido a NeuroExplorer!</h1>
+            <hr>
+            <p class="pini">Nuestra plataforma le permite aprovechar al máximo las diademas MindWave Mobile para la lectura de ondas cerebrales mediante BCI (Interfaz Cerebro-Computadora). 
+                <br><br>Con NeuroExplorer, puede monitorear, analizar y entender su actividad cerebral en tiempo real de manera intuitiva y accesible. Ya sea que sea un investigador, desarrollador o simplemente un entusiasta de la neurotecnología, nuestra herramienta le proporciona todo lo que necesita para monitorear y adentrarse en el mundo de las ondas cerebrales.</p>
+            <a href="/diademas" class="inicio">Comenzar...</a>
+        </div>
+        <div class="contenedor2"><img class="diadema" src="/static/img/ImgDiadema.jpg" alt="gif Interfaz NeuroExplorer" style="width: 60%; box-shadow: none;"></div>
+    </div>
+
+    <div class="separador"></div>
+
+    <div class="divi">
+        <div class="contenedor2">
+            <img src="/static/img/WhatsApp Video 2024-11-05 at 8.57.16 PM.gif" alt="Imagen del cerebro" >
+        </div>
+        
+        <div class="contenedor1">
+            <div class="titulo"><b>Visualización de datos </b></div>
+            <hr>
+            <p class="pini">
+                Usted puede visualizar los datos de las diademas MindWave de manera interactiva. Los valores de atención, meditación y las diferentes bandas de EEG (como Delta, Theta, Alpha, Beta, Gamma) se muestran en tiempo real. <br> <br> Para facilitar su interpretación, los datos se presentan mediante gráficos dinámicos que se actualizan continuamente, permitiendo observar cómo varían las señales cerebrales mientras se utilizan las diademas. 
+            </p>
+        </div>
+    </div>
+
+    <div class="divi"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const title = document.getElementById("animated-title");
+            const text = title.textContent; // Almacena el texto original
+            title.innerHTML = ""; // Limpia el título para la animación
+            let i = 0;
+
+            function typeEffect() {
+                if (i < text.length) {
+                    // Agrega cada carácter incluyendo los espacios
+                    title.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(typeEffect, 170); // Cambia 100 para ajustar la velocidad
+                }
+            }
+            
+            typeEffect();
+        });
+    </script>
+
+    
 </body>
 </html>
