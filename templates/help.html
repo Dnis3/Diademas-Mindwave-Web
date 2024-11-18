@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" href="/static/img/brain.png" type="image/x-icon">
 </head>
-<body class="bodyin">
+<body class="bodyin" >
     <header>
         <div class="logo">MindWave BCI</div>
         <ul>
@@ -29,6 +29,7 @@
         <div class="inter" id="inicio">
             <div class="tex">
                 <h1>¡Gracias por usar NeuroExplorer!</h1>
+                <hr>
                 <p class="pini">
                     NeuroExplorer es una aplicación desarrollada para facilitar la conexión y monitoreo de las diademas NeuroSky MindWave, está diseñada para brindar una experiencia completa y accesible en el monitoreo de la actividad cerebral, con funcionalidades avanzadas que permiten a los usuarios visualizar y analizar sus ondas EEG en tiempo real. <br><br>
                     Esta plataforma permite la visualización y análisis de datos EEG, tales como los niveles de atención, meditación y distintas frecuencias de ondas cerebrales, presentados en gráficos intuitivos que simplifican su interpretación. <br>La integración de la tecnología BCI (Interfaz Cerebro-Computadora) optimiza el uso de las diademas MindWave Mobile para la lectura de estos datos. <br><br>
@@ -70,173 +71,173 @@
     
     </div>
     <div class="new">
-        <div class="tit"><b>Ajustar puertos COM</b></div>
+        <div class="tit" id="pcom"><b>Ajustar puertos COM</b></div>
         <p class="out">Para conectar las diademas MindWave por primera vez, es necesario configurar correctamente los puertos de comunicación (COM) en su computadora. Los puertos COM son canales virtuales que permiten la comunicación entre dispositivos y su computadora. Esta aplicación web utiliza específicamente los puertos COM3 y COM8 para establecer la conexión con las diademas.
-            <br> A continuación, se describen los pasos para realizar esta configuración inicial. Una vez completada la configuración y vinculadas las diademas, podrá utilizar NeuroExplorer de forma muy sencilla: solo deberá ingresar a la app, activar el Bluetooth y encender las diademas, y finalmente hacer clic en "Conectar" para comenzar a usarlas.
+            <br> <br> A continuación, se describen los pasos para realizar esta configuración inicial. Una vez completada la configuración y vinculadas las diademas, podrá utilizar NeuroExplorer simplemente haciendo clic en "Conectar" para comenzar a usarlas. <br><br>
         </p>
         
-        <div class="carrusel" id="pcom">
-        <button class="prev" onclick="cambiarSlide(-1)">&#10094;</button>
-        <div class="slides">
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="/static/NeuroImg/1.jpg" alt="Vincular Diadema Bluetooth">
+        <div class="carrusel" >
+            <button class="prev" onclick="cambiarSlide(-1)">&#10094;</button>
+            <div class="slides">
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img1.jpg" alt="Vincular Diadema Bluetooth">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 1: Vincular Diadema Bluetooth</h2>
+                            <p>Como primer paso debe encender el Bluetooth <b>> Agregar nuevo dispositivo > Vincular la diadema. </b> <br><br> Las diademas MindWave Mobile deberán aparecer con el icono y nombre que se muestra en la imagen.</p>
+                        </div>
                     </div>
-                    <div class="texto">
-                        <h2>Paso 1: Vincular Diadema Bluetooth</h2>
-                        <p>Como primer paso debe encender el Bluetooth > Agregar nuevo dispositivo y vincular la diadema. Las diademas MindWave Mobile deberán aparecer con el icono y nombre que se muestra en la imagen.</p>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img2.jpg" alt="Verificar Conexión">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 2: Verificar Conexión</h2>
+                            <p>Una vez conectado se mostrará igual que en la imagen. <br><br> Deberá vincular todas las diademas que desee usar.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img3.jpg" alt="Reconocimiento del Dispositivo">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 3: Reconocimiento del Dispositivo</h2>
+                            <p>De igual manera debe conectarlas como si fueran un auricular, para asegurar que los datos se reciban adecuadamente. <br><br> En ocasiones puede no aparecer con el nombre del dispositivo y aparecer como <b>"Auriculares Bluetooth con Micrófono"</b>, como se muestra en la imagen, aún así es necesario vincularlos.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img4.jpg" alt="Confirmación de Vinculación">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 4: Confirmación de Vinculación</h2>
+                            <p>Una vez vinculado debe aparecer con el mismo ícono y nombre, como se muestra en la imagen.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img5.jpg" alt="Verificar Puertos COM">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 5: Verificar Puertos COM</h2>
+                            <p>Cuando ambas diademas estén conectadas como auricular y como dispositivo (como se muestra en el recuadro rojo) debe dar clic en <b>"Mas opciones de Bluetooth"</b> y dirigirse a la pestaña <b>"Puertos COM"</b> para poder visualizar en cuáles puertos están conectadas las diademas.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img6.jpg" alt="Verificar Asignación de Puertos">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 6: Verificar Asignación de Puertos</h2>
+                            <p>Es necesario que las diademas se comuniquen con la app a través de los puertos COM3 y COM8. <br><br>Los dispositivos con el nombre <b>"Mindwave Mobile 'Serial Port Server' "</b> deben estar conectados a estos puertos. Si están en otros puertos (como  en este ejemplo que se encuentra en el puerto COM5), será necesario cambiarlos.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img7.jpg" alt="Acceder al Administrador de Dispositivos">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 7: Acceder al Administrador de Dispositivos</h2>
+                            <p>Busque <b>"Administrador de dispositivos" </b>en la barra de búsqueda de Windows para acceder a la configuración de puertos.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img8.jpg" alt="Localizar Puertos COM">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 8: Localizar Puertos COM</h2>
+                            <p>En el Administrador de Dispositivos, vaya a <b>"Puertos (COM y LPT)".</b> <br><br>Haga clic derecho en el puerto que desea cambiar (en este ejemplo el puerto COM5) y seleccione <B>"Propiedades"</B>.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img9.jpg" alt="Configuración de Puerto">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 9: Configuración de Puerto</h2>
+                            <p>En la ventana de Propiedades, vaya a la pestaña <b>"Configuración de puerto"</b> y haga clic en <b>"Opciones avanzadas"</b>.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img10.jpg" alt="Opciones Avanzadas">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 10: Opciones Avanzadas</h2>
+                            <p>En la ventana de Opciones avanzadas, localice la opción <b>"Número de puerto COM".</b></p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img11.jpg" alt="Cambiar Puerto">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 11: Cambiar Puerto</h2>
+                            <p>Seleccione el puerto deseado (en este ejemplo COM8) de la lista desplegable y haga clic en <b>"Aceptar"</b> para guardar los cambios.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img12.jpg" alt="Verificar Cambio">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 12: Verificar Cambio</h2>
+                            <p>Confirme que el puerto ha sido cambiado correctamente en el Administrador de Dispositivos. <br><br> Debe ver que los puertos que se estén usando sean los COM3 Y COM8 como se muestra en la imagen.</p>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="imagen">
+                            <img src="/static/img/helpimg/img13.jpg" alt="Confirmación Final">
+                        </div>
+                        <div class="texto">
+                            <h2>Paso 13: Confirmación Final</h2>
+                            <p>Para verificar la configuración final, vaya a <b>Bluetooth > Más opciones de Bluetooth > Puertos COM</b>. <br><br>Los dispositivos deben estar asignados a los puertos <b>COM3 y COM8.</b></p>
+                        </div>
                     </div>
                 </div>
             </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Verificar Conexión">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 2: Verificar Conexión</h2>
-                        <p>Una vez conectado se mostrará igual que en la imagen. Deberá vincular todas las diademas que desee usar.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Reconocimiento del Dispositivo">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 3: Reconocimiento del Dispositivo</h2>
-                        <p>De igual manera debe conectarlas como si fueran un auricular, en ocasiones puede no aparecer con el nombre del dispositivo y aparecer como "Auriculares Bluetooth con Micrófono", como se muestra en la imagen, aún así es necesario vincularlos.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Confirmación de Vinculación">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 4: Confirmación de Vinculación</h2>
-                        <p>Una vez vinculado debe aparecer de la misma forma que se muestra en la imagen.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Verificar Puertos COM">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 5: Verificar Puertos COM</h2>
-                        <p>Cuando ambas diademas estén conectadas (como se muestra en el recuadro rojo) debe dar clic en "Mas opciones de Bluetooth" y dirigirse a la pestaña "Puertos COM" para poder visualizar a que puertos están conectadas las diademas.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Verificar Asignación de Puertos">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 6: Verificar Asignación de Puertos</h2>
-                        <p>Es necesario que las diademas se comuniquen con la app a través de los puertos COM3 y COM8. Los dispositivos "Mindwave Mobile 'Serial Port Server'" deben estar conectados a estos puertos. Si están en otros puertos (como COM5), será necesario cambiarlos.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Acceder al Administrador de Dispositivos">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 7: Acceder al Administrador de Dispositivos</h2>
-                        <p>Busque "Administrador de dispositivos" en la barra de búsqueda de Windows para acceder a la configuración de puertos.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Localizar Puertos COM">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 8: Localizar Puertos COM</h2>
-                        <p>En el Administrador de Dispositivos, vaya a "Puertos (COM y LPT)". Haga clic derecho en el puerto que desea cambiar y seleccione "Propiedades".</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Configuración de Puerto">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 9: Configuración de Puerto</h2>
-                        <p>En la ventana de Propiedades, vaya a la pestaña "Configuración de puerto" y haga clic en "Opciones avanzadas".</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Opciones Avanzadas">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 10: Opciones Avanzadas</h2>
-                        <p>En la ventana de Opciones avanzadas, localice la opción "Número de puerto COM".</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Cambiar Puerto">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 11: Cambiar Puerto</h2>
-                        <p>Seleccione el puerto deseado (COM8) de la lista desplegable y haga clic en "Aceptar" para guardar los cambios.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Verificar Cambio">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 12: Verificar Cambio</h2>
-                        <p>Confirme que el puerto ha sido cambiado correctamente en el Administrador de Dispositivos.</p>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="slide">
-                <div class="slide-content">
-                    <div class="imagen">
-                        <img src="" alt="Confirmación Final">
-                    </div>
-                    <div class="texto">
-                        <h2>Paso 13: Confirmación Final</h2>
-                        <p>Para verificar la configuración final, vaya a Bluetooth > Más opciones de Bluetooth > Puertos COM. Los dispositivos deben estar asignados a los puertos COM3 y COM8.</p>
-                    </div>
-                </div>
-            </div>
+            <button class="next" onclick="cambiarSlide(1)">&#10095;</button>
+            
         </div>
-        <button class="next" onclick="cambiarSlide(1)">&#10095;</button>
-        <div class="indicadores"></div>
-    </div>
     </div>
     
     
