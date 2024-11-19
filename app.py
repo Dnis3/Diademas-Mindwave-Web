@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify
 import serial
-import struct
+import os
 import threading
 import time
 import csv  # Importación para manejar archivos CSV
@@ -265,4 +265,5 @@ def get_port(name):
 if __name__ == '__main__':
     # Iniciar hilo para guardar datos periódicamente
     threading.Thread(target=save_data_periodically, daemon=True).start()
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+
