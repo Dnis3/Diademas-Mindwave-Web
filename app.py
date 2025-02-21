@@ -1,3 +1,4 @@
+#Importación de librerías
 from flask import Flask, render_template, jsonify
 import serial
 import os
@@ -6,6 +7,7 @@ import time
 import csv  # Importación para manejar archivos CSV
 from flask import send_file
 
+#Llamada a la función principal
 app = Flask(__name__)
 
 # Constantes
@@ -22,7 +24,8 @@ CÓDIGO_EEG_POWER = 0x83
 # Datos globales para almacenar la información de las diademas
 diadema_data = {
     'Diadema 1': {'status': 'Desconectado'},
-    'Diadema 2': {'status': 'Desconectado'}
+    'Diadema 2': {'status': 'Desconectado'},
+    'Diadema 3': {'status': 'Desconectado'}  # Agregada la tercera diadema
 }
 
 # Función para inicializar el archivo CSV y escribir el encabezado
@@ -41,7 +44,7 @@ def save_to_csv(file_name, name, data):
         # Obtener la marca de tiempo
         timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
         
-        # Escribir una nueva fila con los datos
+        # Escribir una nueva fila con los datos que se obtienen de las diademas
         writer.writerow([
             timestamp,
             name,
@@ -58,18 +61,23 @@ def save_to_csv(file_name, name, data):
             data.get('eeg_power', {}).get('highGamma', '')
         ])
 
-# Inicializa los archivos CSV para ambas diademas
+# Inicializa los archivos CSV para las tres diademas
 csv_file_diadema_1 = 'diadema1.csv'
 csv_file_diadema_2 = 'diadema2.csv'
+csv_file_diadema_3 = 'diadema3.csv'  # Agregado archivo CSV para la tercera diadema
 
 init_csv(csv_file_diadema_1)
 init_csv(csv_file_diadema_2)
+init_csv(csv_file_diadema_3)  # Inicializar CSV para la tercera diadema
 
+#Lectura de los valores egg
 def parse_eeg_power(value):
+    #Lee el tamaño del paquete
     if len(value) != 24:
         print("Error: longitud incorrecta para EEG_POWER.")
         return
     
+    #Se crea un array donde se almacenan los valores para porteriormente normalizaarlos (datos crudos)
     powers = []
     for i in range(0, 24, 3):
         power = int.from_bytes(value[i:i + 3], byteorder='big', signed=False)
@@ -100,9 +108,11 @@ max_values = {
     'highGamma': 817668
 }
 
+#Función que normaliza los valores
 def normalize_value(value, max_value):
     return (value / max_value) * 100 if max_value > 0 else 0
 
+#Clase principal en donde se leen los datos de la diadema
 class ThinkGearStreamParser:
     def __init__(self, handle_data_value_func, name):
         self.handle_data_value_func = handle_data_value_func
@@ -159,6 +169,7 @@ class ThinkGearStreamParser:
 
             self.handle_data_value_func(self.extended_code_level, code, length, value, self.name)
 
+#Función que identifica el código de datos que se está obteniendo 
 def handle_data_value_func(extended_code_level, code, value_length, value, name):
     global diadema_data
     if extended_code_level == 0:
@@ -178,6 +189,7 @@ def handle_data_value_func(extended_code_level, code, value_length, value, name)
                     eeg_power[key] = int(normalize_value(eeg_power[key], max_values[key]))
             diadema_data[name]['eeg_power'] = eeg_power
 
+#Funcion para conectar las diademas a los puertos específicos
 def read_from_port(port, name):
     global diadema_data
     parser = ThinkGearStreamParser(handle_data_value_func, name)
@@ -204,13 +216,15 @@ def read_from_port(port, name):
 def save_data_periodically():
     while True:
         time.sleep(1)  # Guardar los datos cada segundo
-        # Guardar los datos de la Diadema 1 en su archivo CSV
+        # Guardar los datos de las tres diademas en sus respectivos archivos CSV
         if diadema_data['Diadema 1']['status'] == 'Conectado':
             save_to_csv(csv_file_diadema_1, 'Diadema 1', diadema_data['Diadema 1'])
-        # Guardar los datos de la Diadema 2 en su archivo CSV
         if diadema_data['Diadema 2']['status'] == 'Conectado':
             save_to_csv(csv_file_diadema_2, 'Diadema 2', diadema_data['Diadema 2'])
+        if diadema_data['Diadema 3']['status'] == 'Conectado':  # Agregado guardado de datos para la tercera diadema
+            save_to_csv(csv_file_diadema_3, 'Diadema 3', diadema_data['Diadema 3'])
 
+#Rutas para redireccionar en el css
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -244,26 +258,26 @@ def disconnect(name):
         return jsonify({'status': 'Desconectado'})
     return jsonify({'status': 'Error', 'message': 'Diadema no encontrada'})
 
-
-
 @app.route('/download/<diadema_name>')
 def download(diadema_name):
     if diadema_name == 'diadema1':
         return send_file(csv_file_diadema_1, as_attachment=True)
     elif diadema_name == 'diadema2':
         return send_file(csv_file_diadema_2, as_attachment=True)
+    elif diadema_name == 'diadema3':  # Agregada descarga para la tercera diadema
+        return send_file(csv_file_diadema_3, as_attachment=True)
     return "Diadema no encontrada", 404
-
 
 def get_port(name):
     if name == 'Diadema 1':
-        return 'COM8'  # Cambia por el puerto correcto
+        return 'COM8'
     elif name == 'Diadema 2':
-        return 'COM3'  # Cambia por el puerto correcto
+        return 'COM3'
+    elif name == 'Diadema 3':  # Agregado puerto para la tercera diadema
+        return 'COM4'  # Asegúrate de cambiar esto al puerto correcto
     return None
 
 if __name__ == '__main__':
     # Iniciar hilo para guardar datos periódicamente
     threading.Thread(target=save_data_periodically, daemon=True).start()
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
-
