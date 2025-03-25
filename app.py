@@ -24,8 +24,7 @@ CÓDIGO_EEG_POWER = 0x83
 # Datos globales para almacenar la información de las diademas
 diadema_data = {
     'Diadema 1': {'status': 'Desconectado'},
-    'Diadema 2': {'status': 'Desconectado'},
-    'Diadema 3': {'status': 'Desconectado'}  # Agregada la tercera diadema
+    'Diadema 2': {'status': 'Desconectado'}
 }
 
 # Función para inicializar el archivo CSV y escribir el encabezado
@@ -61,14 +60,12 @@ def save_to_csv(file_name, name, data):
             data.get('eeg_power', {}).get('highGamma', '')
         ])
 
-# Inicializa los archivos CSV para las tres diademas
+# Inicializa los archivos CSV para ambas diademas
 csv_file_diadema_1 = 'diadema1.csv'
 csv_file_diadema_2 = 'diadema2.csv'
-csv_file_diadema_3 = 'diadema3.csv'  # Agregado archivo CSV para la tercera diadema
 
 init_csv(csv_file_diadema_1)
 init_csv(csv_file_diadema_2)
-init_csv(csv_file_diadema_3)  # Inicializar CSV para la tercera diadema
 
 #Lectura de los valores egg
 def parse_eeg_power(value):
@@ -96,7 +93,8 @@ def parse_eeg_power(value):
     
     return eeg_power
 
-# Máximos conocidos para normalización
+# Máximos conocidos para normalización (se pueden cambiar si en la documentacion se encuentran los valores oficiales)
+#Estos son los valores maximos obtenidos al leer datos de dos diademas durante un periodo de tiempo
 max_values = {
     'delta': 3826920,
     'theta': 2073192,
@@ -107,6 +105,7 @@ max_values = {
     'lowGamma': 971627,
     'highGamma': 817668
 }
+
 
 #Función que normaliza los valores
 def normalize_value(value, max_value):
@@ -142,6 +141,7 @@ class ThinkGearStreamParser:
                         self.parse_payload(payload)
                     self.buffer = bytearray()
 
+    #Dependiendo de el checksum se dividen con diferentes encabezados
     def parse_payload(self, payload):
         index = 0
         while index < len(payload):
@@ -169,6 +169,7 @@ class ThinkGearStreamParser:
 
             self.handle_data_value_func(self.extended_code_level, code, length, value, self.name)
 
+
 #Función que identifica el código de datos que se está obteniendo 
 def handle_data_value_func(extended_code_level, code, value_length, value, name):
     global diadema_data
@@ -177,12 +178,15 @@ def handle_data_value_func(extended_code_level, code, value_length, value, name)
             diadema_data[name]['signal_strength'] = value[0] & 0xFF
         elif code == CÓDIGO_ATENCIÓN:
             diadema_data[name]['attention'] = value[0] & 0xFF
+            print(f"[{name}] Atención: {diadema_data[name]['attention']}")
         elif code == CÓDIGO_MEDITACIÓN:
             diadema_data[name]['meditation'] = value[0] & 0xFF
+            print(f"[{name}] Meditación: {diadema_data[name]['meditation']}")
         elif code == CÓDIGO_BATERÍA:
             diadema_data[name]['battery'] = value[0] & 0xFF
         elif code == CÓDIGO_EEG_POWER:
             eeg_power = parse_eeg_power(value)
+            #print(f"[{name}] Datos crudos EEG: {eeg_power}")
             # Normalizar los valores de EEG y convertir a int
             for key in max_values.keys():
                 if key in eeg_power:
@@ -216,13 +220,12 @@ def read_from_port(port, name):
 def save_data_periodically():
     while True:
         time.sleep(1)  # Guardar los datos cada segundo
-        # Guardar los datos de las tres diademas en sus respectivos archivos CSV
+        # Guardar los datos de la Diadema 1 en su archivo CSV
         if diadema_data['Diadema 1']['status'] == 'Conectado':
             save_to_csv(csv_file_diadema_1, 'Diadema 1', diadema_data['Diadema 1'])
+        # Guardar los datos de la Diadema 2 en su archivo CSV
         if diadema_data['Diadema 2']['status'] == 'Conectado':
             save_to_csv(csv_file_diadema_2, 'Diadema 2', diadema_data['Diadema 2'])
-        if diadema_data['Diadema 3']['status'] == 'Conectado':  # Agregado guardado de datos para la tercera diadema
-            save_to_csv(csv_file_diadema_3, 'Diadema 3', diadema_data['Diadema 3'])
 
 #Rutas para redireccionar en el css
 @app.route('/')
@@ -242,6 +245,7 @@ def data():
     return jsonify(diadema_data)
 
 @app.route('/connect/<name>', methods=['POST'])
+#Función para conectar la diadema
 def connect(name):
     if name in diadema_data and diadema_data[name]['status'] == 'Desconectado':
         diadema_data[name]['status'] = 'Conectando'
@@ -251,6 +255,7 @@ def connect(name):
         return jsonify({'status': 'Conectando'})
     return jsonify({'status': 'Error', 'message': 'Diadema no encontrada o ya conectada'})
 
+#Ruta y función para desconectar la diadema
 @app.route('/disconnect/<name>', methods=['POST'])
 def disconnect(name):
     if name in diadema_data:
@@ -258,23 +263,22 @@ def disconnect(name):
         return jsonify({'status': 'Desconectado'})
     return jsonify({'status': 'Error', 'message': 'Diadema no encontrada'})
 
+
 @app.route('/download/<diadema_name>')
+#Funcion para descargar los archivos generados por las diademas
 def download(diadema_name):
     if diadema_name == 'diadema1':
         return send_file(csv_file_diadema_1, as_attachment=True)
     elif diadema_name == 'diadema2':
         return send_file(csv_file_diadema_2, as_attachment=True)
-    elif diadema_name == 'diadema3':  # Agregada descarga para la tercera diadema
-        return send_file(csv_file_diadema_3, as_attachment=True)
     return "Diadema no encontrada", 404
 
+#Función para conectar la diadema
 def get_port(name):
     if name == 'Diadema 1':
-        return 'COM8'
+        return 'COM3'  # Cambia por el puerto correcto
     elif name == 'Diadema 2':
-        return 'COM3'
-    elif name == 'Diadema 3':  # Agregado puerto para la tercera diadema
-        return 'COM4'  # Asegúrate de cambiar esto al puerto correcto
+        return 'COM6'  # Cambia por el puerto correcto
     return None
 
 if __name__ == '__main__':
