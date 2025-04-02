@@ -7,28 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link rel="icon" href="/static/img/brain.png" type="image/x-icon">
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background-color: #ffffff; }
-        header { margin: 0%; display:flex; background-color: #00ccbb; align-items: center; justify-content: space-between; font-family: 'Segoe UI'; padding: 17px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);}
-        .logo { color: white; font-size: 27px; font-family: 'fangsong'; }
-        .encabezado{ font-size: 25px; font-family: sans-serif; margin: 0px 17px 0px 17px;}
-        .espacio{margin: 0px 17px 0px 17px;}
-        h2{color: #0E6D5B;}
-        hr{margin: 0px 17px 0px 17px;}
-        .contenedor { display: flex; justify-content: space-around; flex-wrap: wrap; }
-        .infousuario { width: 45%; min-width: 300px; background-color: #FAFAF5; margin-bottom: 20px; padding: 15px; border-radius: 8px; box-shadow: 0 20px 30px rgba(0,0,0,0.1); border: 2px solid rgb(182, 182, 182); }
-        .us { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .graf { width: 100%; height: 300px; }
-        button { color: white; text-decoration: none; margin: 13px; font-size: 19px; background-color: #00ccbb; border: 2px solid #00ccbb; cursor: pointer;}
-        button:hover{border-bottom: 2px solid#abf7e0; padding-bottom: 2px;}
-        button.connect { font-size: 19px; background-color: #00ccbb; color: white; border: 2px solid #00ccbb; border-radius: 17px; padding: 11px;}
-        button.connect:hover { background-color: white; color: #00ccbb; border: 2px solid #00ccbb; }
-        button.disconnect { background-color: red; color: white;  border-radius: 17px; border: 2px solid red; padding: 11px}
-        button.disconnect:hover { background-color: darkred; border: 2px solid darkred;}
-        #errorMessage { color: red; text-align: center; margin-top: 10px; }
-        .checkbox-container { display: flex; flex-wrap: wrap; justify-content: space-around; margin-top: 10px; }
-        .checkbox-item { margin: 5px; }
-    </style>
+    <link rel="stylesheet" href="/static/diademas.css">
 </head>
 <body>
     <header>
@@ -102,6 +81,9 @@
             { label: 'Meditación', color: 'rgba(128, 0, 128, 1)', key: 'meditation' }
         ];
 
+        // Umbral para mala señal (ajústalo según corresponda)
+        const SIGNAL_UMBRAL = 25;
+
         function crearGrafica(ctx) {
             return new Chart(ctx, {
                 type: 'line',
@@ -118,6 +100,7 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         x: { display: true },
                         y: { 
@@ -157,11 +140,20 @@
             grafica.update();
         }
 
-        function updateStatus(name, status) {
+        // Se modifica updateStatus para que reciba opcionalmente el objeto "data" de la diadema
+        function updateStatus(name, status, data = {}) {
             const estadoDiv = $(`#estado${name.charAt(name.length - 1)}`);
-            estadoDiv.text(status)
-                    .toggleClass('alert-warning', status !== 'Conectado' && status !== 'Conectando...')
-                    .toggleClass('alert-success', status === 'Conectado');
+            
+            // Si está conectado y se recibe información de señal, se evalúa la calidad
+            if (status === 'Conectado' && data.signal_strength !== undefined && data.signal_strength > SIGNAL_UMBRAL) {
+                estadoDiv.text("Coloque bien la diadema")
+                         .removeClass('alert-warning alert-success')
+                         .addClass('alert-danger');
+            } else {
+                estadoDiv.text(status)
+                         .toggleClass('alert-warning', status !== 'Conectado' && status !== 'Conectando...')
+                         .toggleClass('alert-success', status === 'Conectado');
+            }
 
             const button = $(`#toggle${name.charAt(name.length - 1)}`);
             
@@ -178,6 +170,7 @@
         }
 
         function updateData(diadema, data) {
+            // Esta línea estaba destinada a mostrar datos JSON en algún contenedor (si se requiere, se puede mantener o eliminar)
             const dataDiv = $(`#data${diadema.charAt(diadema.length - 1)}`);
             dataDiv.text(JSON.stringify(data, null, 2));
             actualizarGrafica(diadema === 'Diadema 1' ? graficaDiadema1 : graficaDiadema2, data);
@@ -186,7 +179,8 @@
         function actualizarDashboard() {
             $.get('/data', function(data) {
                 for (const diadema in data) {
-                    updateStatus(diadema, data[diadema].status);
+                    // Se pasa el objeto de datos completo para evaluar la calidad de la señal
+                    updateStatus(diadema, data[diadema].status, data[diadema]);
                     if (data[diadema].status === 'Conectado') {
                         updateData(diadema, data[diadema]);
                     }
@@ -249,33 +243,64 @@
             });
 
             $('#reiniciarTodo').click(function() {
-                // Reiniciar el estado de las diademas
-                diademaConectada = {'Diadema 1': false, 'Diadema 2': false};
-                
-                // Reiniciar los estados en la UI
-                updateStatus('Diadema 1', 'Desconectado');
-                updateStatus('Diadema 2', 'Desconectado');
-                
-                // Reiniciar las gráficas
-                graficaDiadema1.data.labels = [];
-                graficaDiadema1.data.datasets.forEach(dataset => {
-                    dataset.data = [];
-                    dataset.hidden = false; // Asegúrate de que todos los datasets estén visibles
-                });
-                
-                graficaDiadema2.data.labels = [];
-                graficaDiadema2.data.datasets.forEach(dataset => {
-                    dataset.data = [];
-                    dataset.hidden = false; // Asegúrate de que todos los datasets estén visibles
-                });
+                // Pedir confirmación al usuario antes de reiniciar
+                if (confirm("¿Estás seguro de que deseas reiniciar todos los estados, las gráficas y los archivos CSV?")) {
+                    // Reiniciar el estado de las diademas
+                    diademaConectada = {'Diadema 1': false, 'Diadema 2': false, 'Diadema 3': false};
 
-                graficaDiadema1.update();
-                graficaDiadema2.update();
-                
-                $('#errorMessage').text(''); // Limpiar mensajes de error
+                    // Desconectar las diademas en el servidor
+                    $.post('/disconnect/Diadema 1');
+                    $.post('/disconnect/Diadema 2');
+                    $.post('/disconnect/Diadema 3');
+
+                    // Reiniciar los estados en la UI
+                    updateStatus('Diadema 1', 'Desconectado');
+                    updateStatus('Diadema 2', 'Desconectado');
+                    updateStatus('Diadema 3', 'Desconectado');
+
+                    // Reiniciar las gráficas
+                    graficaDiadema1.data.labels = [];
+                    graficaDiadema1.data.datasets.forEach(dataset => {
+                        dataset.data = [];
+                        dataset.hidden = false;
+                    });
+
+                    graficaDiadema2.data.labels = [];
+                    graficaDiadema2.data.datasets.forEach(dataset => {
+                        dataset.data = [];
+                        dataset.hidden = false;
+                    });
+
+                    graficaDiadema3.data.labels = [];
+                    graficaDiadema3.data.datasets.forEach(dataset => {
+                        dataset.data = [];
+                        dataset.hidden = false;
+                    });
+
+                    // Actualizar las gráficas
+                    graficaDiadema1.update();
+                    graficaDiadema2.update();
+                    graficaDiadema3.update();
+
+                    // Reiniciar los archivos CSV
+                    $.post('/reiniciar_csv', function(response) {
+                        if (response.status === 'success') {
+                            console.log("Archivos CSV reiniciados correctamente.");
+                        } else {
+                            console.error("Error al reiniciar los archivos CSV.");
+                        }
+                    });
+
+                    // Limpiar mensajes de error
+                    $('#errorMessage').text('');
+                } else {
+                    console.log("Reinicio cancelado por el usuario.");
+                }
             });
 
         });
     </script>
 </body>
 </html>
+
+

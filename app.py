@@ -32,9 +32,9 @@ def init_csv(file_name):
     with open(file_name, mode='w', newline='') as file:
         writer = csv.writer(file)
         # Escribir los encabezados
-        writer.writerow(['timestamp', 'diadema', 'signal_strength', 'attention', 'meditation',
-                         'delta', 'theta', 'lowAlpha', 'highAlpha', 'lowBeta', 'highBeta', 
-                         'lowGamma', 'highGamma'])
+        writer.writerow(['Timestamp', 'Diadema', 'Intensidad_señal', 'Attention', 'Meditation',
+                         'Delta', 'Theta', 'LowAlpha', 'HighAlpha', 'LowBeta', 'HighBeta', 
+                         'LowGamma', 'HighGamma'])
 
 # Función para guardar los datos en el archivo CSV
 def save_to_csv(file_name, name, data):
@@ -66,6 +66,19 @@ csv_file_diadema_2 = 'diadema2.csv'
 
 init_csv(csv_file_diadema_1)
 init_csv(csv_file_diadema_2)
+
+@app.route('/reiniciar_csv', methods=['POST'])
+def reiniciar_csv():
+    try:
+        # Inicializar los CSV para las tres diademas
+        init_csv('diadema1.csv')
+        init_csv('diadema2.csv')
+        init_csv('diadema3.csv')
+
+        # Responder con un mensaje de éxito
+        return jsonify({'status': 'success', 'message': 'Archivos CSV reiniciados correctamente.'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Ocurrió un error al reiniciar los archivos CSV: {e}'})
 
 #Lectura de los valores egg
 def parse_eeg_power(value):
@@ -183,7 +196,9 @@ def handle_data_value_func(extended_code_level, code, value_length, value, name)
             diadema_data[name]['meditation'] = value[0] & 0xFF
             print(f"[{name}] Meditación: {diadema_data[name]['meditation']}")
         elif code == CÓDIGO_BATERÍA:
-            diadema_data[name]['battery'] = value[0] & 0xFF
+            battery_level = value[0] & 0xFF
+            diadema_data[name]['battery'] = battery_level
+            print(f"[{name}] Nivel de batería: {battery_level}%")   
         elif code == CÓDIGO_EEG_POWER:
             eeg_power = parse_eeg_power(value)
             #print(f"[{name}] Datos crudos EEG: {eeg_power}")
@@ -197,24 +212,32 @@ def handle_data_value_func(extended_code_level, code, value_length, value, name)
 def read_from_port(port, name):
     global diadema_data
     parser = ThinkGearStreamParser(handle_data_value_func, name)
-    
-    while diadema_data[name]['status'] == 'Conectando':
-        try:
-            with serial.Serial(port, baudrate=9600, timeout=1) as ser:
-                print(f"[{name}] Conectado al puerto {port}")
-                diadema_data[name]['status'] = 'Conectado'
-                
-                while diadema_data[name]['status'] == 'Conectado':
-                    byte = ser.read(1)
-                    if byte:
-                        parser.parse_byte(ord(byte))
-        
-        except (serial.SerialException, OSError) as e:
-            print(f"\n[{name}] Error en la comunicación serial: {e}")
+
+    try:
+        print(f"[{name}] 🔄 Intentando conectar al puerto {port}...")
+        with serial.Serial(port, baudrate=9600, timeout=1) as ser:
+            print(f"[{name}] ✅ Conectado al puerto {port}")
+            diadema_data[name]['status'] = 'Conectado'
+
+            while diadema_data[name]['status'] == 'Conectado':
+                byte = ser.read(1)
+                if byte:
+                    parser.parse_byte(ord(byte))
+                else:
+                    print(f"[{name}] ⚠️ No se recibieron datos en 1 segundo.")
+
+    except serial.SerialException as e:
+        print(f"\n[{name}] ❌ Error en la comunicación serial: {e}")
+        diadema_data[name]['status'] = 'Desconectado'  # Asegurar que quede en 'Desconectado'
+
+    except KeyboardInterrupt:
+        print(f"\n[{name}] 🛑 Interrupción manual detectada. Cerrando conexión...")
+
+    finally:
+        if diadema_data[name]['status'] != 'Conectado':  # Asegurar estado correcto
             diadema_data[name]['status'] = 'Desconectado'
-        
-        print(f"[{name}] Intentando reconectar en 5 segundos...")
-        time.sleep(5)
+        print(f"[{name}] 🔌 Desconectado.")
+
 
 # Hilo para guardar datos cada segundo
 def save_data_periodically():
@@ -276,12 +299,14 @@ def download(diadema_name):
 #Función para conectar la diadema
 def get_port(name):
     if name == 'Diadema 1':
-        return 'COM3'  # Cambia por el puerto correcto
+        return 'COM3'
     elif name == 'Diadema 2':
-        return 'COM6'  # Cambia por el puerto correcto
+        return 'COM6'
+    elif name == 'Diadema 3':  # Agregado puerto para la tercera diadema
+        return 'COM7'  # Asegúrate de cambiar esto al puerto correcto
     return None
 
 if __name__ == '__main__':
     # Iniciar hilo para guardar datos periódicamente
     threading.Thread(target=save_data_periodically, daemon=True).start()
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True, host='127.0.0.1', port=5000)
