@@ -61,13 +61,31 @@
                 </div>
                 <div class="checkbox-container" id="checkboxes2"></div>
             </div>
+
+            <div class="infousuario">
+                <div class="us">
+                    <div class="imgdia">
+                        <h2>Diadema 3</h2>
+                        <img src="/static/img/user.png" alt="User imagen" style="width: 70px; height: 70px; margin-left: 25px;">
+                    </div>
+                    <div id="estado3" class="alert alert-warning">Desconectado</div>
+                    <button id="toggle3" class="btn connect">Conectar</button>
+                    <a href="/download/diadema3" download>
+                        <img src="/static/img/descarga.png" alt="Descargar Datos" style="width: 30px; height: 30px; cursor: pointer; margin-right: 17px;">
+                    </a>
+                </div>
+                <div class="graf">
+                    <canvas id="grafica-diadema-3"></canvas>
+                </div>
+                <div class="checkbox-container" id="checkboxes3"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        let diademaConectada = {'Diadema 1': false, 'Diadema 2': false};
-        let graficaDiadema1, graficaDiadema2;
-        const maxDataPoints = 25;
+        let diademaConectada = {'Diadema 1': false, 'Diadema 2': false, 'Diadema 3': false};
+        let graficaDiadema1, graficaDiadema2, graficaDiadema3;
+        const maxDataPoints = 10;
         const dataTypes = [
             { label: 'Delta', color: 'rgba(187, 19, 19 , 1)', key: 'delta' },
             { label: 'Theta', color: 'rgba(255, 139, 1 , 1)', key: 'theta' },
@@ -173,7 +191,19 @@
             // Esta línea estaba destinada a mostrar datos JSON en algún contenedor (si se requiere, se puede mantener o eliminar)
             const dataDiv = $(`#data${diadema.charAt(diadema.length - 1)}`);
             dataDiv.text(JSON.stringify(data, null, 2));
-            actualizarGrafica(diadema === 'Diadema 1' ? graficaDiadema1 : graficaDiadema2, data);
+            let grafica;
+            switch(diadema) {
+                case 'Diadema 1':
+                    grafica = graficaDiadema1;
+                    break;
+                case 'Diadema 2':
+                    grafica = graficaDiadema2;
+                    break;
+                case 'Diadema 3':
+                    grafica = graficaDiadema3;
+                    break;
+            }
+            actualizarGrafica(grafica, data);
         }
 
         function actualizarDashboard() {
@@ -199,7 +229,18 @@
                     .attr('id', `checkbox${diademaNum}-${index}`)
                     .prop('checked', true)
                     .on('change', function() {
-                        const graph = diademaNum === '1' ? graficaDiadema1 : graficaDiadema2;
+                        let graph;
+                        switch(diademaNum) {
+                            case '1':
+                                graph = graficaDiadema1;
+                                break;
+                            case '2':
+                                graph = graficaDiadema2;
+                                break;
+                            case '3':
+                                graph = graficaDiadema3;
+                                break;
+                        }
                         graph.data.datasets[index].hidden = !this.checked;
                         graph.update();
                     });
@@ -214,16 +255,20 @@
         $(document).ready(function() {
             const ctx1 = document.getElementById('grafica-diadema-1').getContext('2d');
             const ctx2 = document.getElementById('grafica-diadema-2').getContext('2d');
+            const ctx3 = document.getElementById('grafica-diadema-3').getContext('2d');
             graficaDiadema1 = crearGrafica(ctx1);
             graficaDiadema2 = crearGrafica(ctx2);
+            graficaDiadema3 = crearGrafica(ctx3);
 
             createCheckboxes('1');
             createCheckboxes('2');
+            createCheckboxes('3');
 
             setInterval(actualizarDashboard, 1000);
 
-            $('#toggle1, #toggle2').click(function() {
-                const diadema = $(this).attr('id') === 'toggle1' ? 'Diadema 1' : 'Diadema 2';
+            $('#toggle1, #toggle2, #toggle3').click(function() {
+                const id = $(this).attr('id');
+                const diadema = `Diadema ${id.charAt(id.length - 1)}`;
                 const estado = diademaConectada[diadema] ? 'disconnect' : 'connect';
                 const button = $(this);
 
@@ -302,5 +347,6 @@
     </script>
 </body>
 </html>
+
 
 
